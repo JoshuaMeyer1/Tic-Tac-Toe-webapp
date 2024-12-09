@@ -1,26 +1,68 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+	<div id="app">
+		<app-navbar @navigate="navigateTo" />
+		<div class="content">
+			<component :is="currentView" />
+		</div>
+	</div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+	import AppNavbar from './components/AppNavbar.vue';
+	import AppHome from './views/AppHome.vue';
+	import AppAbout from './views/AppAbout.vue';
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+	export default {
+		name: 'App',
+		components: {
+			AppNavbar,
+			AppHome,
+			AppAbout,
+		},
+		data() {
+			return {
+				currentView: "AppHome",
+			};
+		},
+
+		created() {
+			this.updateView(window.location.pathname);
+
+			window.addEventListener("popstate", () => {
+				this.updateView(window.location.pathname);
+				});
+		},
+		methods: {
+			updateView(path) {
+				if (path === "/about") {
+					this.currentView = "AppAbout";
+				} else {
+					this.currentView = "AppHome";
+				}
+			},
+			navigateTo(path) {
+				window.history.pushState({}, "", path);
+				this.updateView(path);
+			},
+		},
+	};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+	/* Global styles */
+	html, body {
+		height: 100%;
+		margin: 0;
+	}
+
+	#app {
+		display: flex;
+		flex-direction: column;
+		min-height: 100%;
+	}
+
+	.content {
+		flex-grow: 1; /* Allow the content area to expand */
+		padding: 0px;
+	}
 </style>

@@ -1,0 +1,167 @@
+<template>
+  <div v-if="show" class="modal-overlay" @click="closeModal">
+    <div class="modal-content" @click.stop>
+      <slot></slot>
+      <div class="tictactoe-board">
+        <div
+          v-for="(cell, index) in board"
+          :key="index"
+          class="cell"
+          :class="{ occupied: cell }"
+          @click="makeMove(index)"
+        >
+          {{ cell }}
+        </div>
+      </div>
+      <p v-if="winner">{{ winnerMessage }}</p>
+      <button class="close-btn" @click="closeModal">Close</button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { generateRandomMove } from "@/../moveGenerator.js"
+export default {
+  name: "AppModal",
+  props: {
+    show: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      board: Array(9).fill(null), // 3x3 board represented as a flat array
+      currentPlayer: "X",
+      winner: null,
+    };
+  },
+  computed: {
+    winnerMessage() {
+      return this.winner ? `${this.winner} wins!` : null;
+    },
+  },
+  methods: {
+    closeModal() {
+      this.$emit("close");
+    },
+    makeMove(index) {
+      if (!this.board[index] && !this.winner) {
+        this.board[index] = this.currentPlayer; // Directly update the board
+        if (this.checkWinner()) {
+          this.winner = this.currentPlayer; // Declare winner
+        } else {
+          this.currentPlayer = this.currentPlayer === "X" ? "O" : "X"; // Switch turn
+        }
+      }
+    },
+    checkWinner() {
+      const winningCombinations = [
+        [0, 1, 2], // Rows
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6], // Columns
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8], // Diagonals
+        [2, 4, 6],
+      ];
+      return winningCombinations.some((combination) => {
+        const [a, b, c] = combination;
+        return (
+          this.board[a] &&
+          this.board[a] === this.board[b] &&
+          this.board[a] === this.board[c]
+        );
+      });
+    },
+  },
+};
+</script>
+
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+.tictactoe-board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-gap: 5px;
+  margin: 20px auto;
+}
+.cell {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #333;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  user-select: none;
+}
+.cell.occupied {
+  cursor: not-allowed;
+}
+.close-btn {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+</style>
+
+
+<template>
+    <nav class="navbar custom-navbar">
+      <div class="container-fluid">
+        <a class="navbar-brand custom-navbar-brand" href="/">
+          <strong>Tic Tac Toe App</strong>
+          &nbsp;
+          <span style="font-size: 0.8em;">By Joshua Meyer</span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <router-link
+                to="/"
+                class="nav-link active custom-nav-link"
+                aria-current="page"
+              >
+                Play
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                to="/about"
+                class="nav-link custom-nav-link"
+              >
+                About
+              </router-link>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </template>
